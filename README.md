@@ -45,3 +45,65 @@ law_edwards_2015
 #> #   DistractorLocation <chr>, Time <dbl>, GazeByImageAOI <chr>,
 #> #   GazeByAOI <chr>
 ```
+
+Use `AggregateLooks()` from the [lookr package](https://github.com/tjmahr/lookr) to get looking proportions collapsed across trials.
+
+``` r
+aggregated <- law_edwards_2015 %>% 
+  filter(between(Time, -500, 2000)) %>% 
+  # First two trials were familarization
+  filter(Condition != "FAM") %>% 
+  lookr::AggregateLooks(Subject + Condition + Time ~ GazeByImageAOI) %>% 
+  tibble::as_data_frame()
+aggregated
+#> # A tibble: 15,855 × 12
+#>      Subject Condition      Time Distractor Target Elsewhere   NAs Others
+#>        <chr>     <chr>     <dbl>      <int>  <int>     <int> <int>  <dbl>
+#> 1  001C45FS1        MP -499.6380          7      5         0    12      7
+#> 2  001C45FS1        MP -482.9834          7      5         0    12      7
+#> 3  001C45FS1        MP -466.3288          7      5         0    12      7
+#> 4  001C45FS1        MP -449.6742          7      5         0    12      7
+#> 5  001C45FS1        MP -433.0196          7      5         1    11      7
+#> 6  001C45FS1        MP -416.3650          7      6         0    11      7
+#> 7  001C45FS1        MP -399.7104          8      6         0    10      8
+#> 8  001C45FS1        MP -383.0558          8      6         0    10      8
+#> 9  001C45FS1        MP -366.4012          8      6         0    10      8
+#> 10 001C45FS1        MP -349.7466          8      6         0    10      8
+#> # ... with 15,845 more rows, and 4 more variables: Looks <dbl>,
+#> #   Proportion <dbl>, ProportionSE <dbl>, PropNA <dbl>
+```
+
+Make a nice plot of the raw data.
+
+``` r
+library(ggplot2)
+theme_aligned <- theme(
+  axis.title.x = element_text(hjust = .995), 
+  axis.title.y = element_text(hjust = .995))
+
+condition_labels <- c(
+  "real" = "real word",
+  "MP" = "mispronunication",
+  "nonsense" = "nonword"
+)
+
+aggregated$heard <- aggregated$Condition %>% 
+  factor(levels = names(condition_labels), labels = condition_labels)
+  
+ggplot(aggregated) + 
+  aes(x = Time, y = Proportion, color = heard) + 
+  geom_hline(yintercept = .5, size = 2, color = "white") +
+  stat_summary(fun.data = mean_se, geom = "pointrange") + 
+  labs(x = "Time relative to target noun onset (ms)", 
+       y = "Proportion of looks to familiar image",
+       color = "Child hears",
+       caption = "Mean ± SE") + 
+  theme_grey(base_size = 12) + 
+  theme_aligned + 
+  theme(legend.position = "top",
+        legend.justification = "left") 
+```
+
+![](README-cond-over-time-1.png)
+
+Compare to [Figure 2](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4618685/figure/F2/) of the article. (The data for that plot used was pre-processed to remove trials with excessive missing and to downsample looks into 50 ms bins, whereas this plot uses raw data).
