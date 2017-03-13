@@ -1,0 +1,9 @@
+Package: LawEdwards2015
+Title: Eyetracking Data for a Mispronunciation Eyetracking Experiment
+Version: 0.0.0.9000
+Authors@R: person("TJ", "Mahr", email = "tristan.mahr@wisc.edu", role = c("aut", "cre"))
+Description: This package contains eyetracking data from the mispronunciation experiment reported in Law and Edwards (2015). The purpose of this package is to provide pre-packaged eyetracking data from a well-documented experiment to support testing and development of code and statistical models about eyetracking data. This package is not an open-data or reproducible-research supplement for that publication.
+Depends: R (>= 3.3.2)
+License: GPL-2
+Encoding: UTF-8
+LazyData: true
